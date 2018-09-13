@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>detail</title>
+    <link href="bootstrap.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span12">
+            <h3>
+                这里是——实例详细信息
+            </h3>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span6">
+            <blockquote>
+                <p>
+                    所有者：
+                </p>
+                <small><cite id="owner"></cite></small>
+            </blockquote>
+            <blockquote>
+                <p>
+                    安全组：
+                </p>
+                <small><cite id="sg">GroupName</cite></small>
+            </blockquote>
+            <blockquote>
+                <p>
+                    虚拟机类型：
+                </p>
+                <small><cite id="hv">Hypervisor</cite></small>
+            </blockquote>
+            <blockquote>
+                <p>
+                    创建时间：
+                </p>
+                <small><cite id="time">LaunchTime</cite></small>
+            </blockquote>
+        </div>
+        <div class="span6">
+            <blockquote>
+                <p>
+                    状态：
+                </p>
+                <small><cite id="state">State.Name</cite></small>
+            </blockquote>
+            <blockquote>
+                <p>
+                    IP:
+                </p>
+                <small><cite id="ip">PublicIpAddress</cite></small>
+            </blockquote>
+            <button class="btn" onclick="window.location.href='/html/index.html'">返回</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+<script>
+    var insid=sessionStorage.getItem("id")
+    $.ajax({
+        url: "/Instances/list",
+        type: "post",
+        async: true,
+        data: {"insid":insid},
+        timeout: 10000,
+        dataType: "json",
+        contentTyep: "application/json/;charset=utf-8",
+        success: function(data) {
+            console.log(data);
+            document.getElementById("owner").innerHTML=data.Reservations[0].OwnerId
+            document.getElementById("sg").innerHTML=data.Reservations[0].Groups[0].GroupName
+            document.getElementById("hv").innerHTML=data.Reservations[0].Instances[0].Hypervisor
+            document.getElementById("time").innerHTML=data.Reservations[0].Instances[0].LaunchTime
+            document.getElementById("state").innerHTML=data.Reservations[0].Instances[0].State.Name
+            document.getElementById("ip").innerHTML=data.Reservations[0].Instances[0].PublicIpAddress
+        },
+        error: function(xhr) {
+            console.log(xhr);
+        }
+    });
+</script>
+</body>
+</html>

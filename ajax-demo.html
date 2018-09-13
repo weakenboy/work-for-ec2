@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		
+		<script src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+	</head>
+	<body>
+		
+			
+	
+
+		<script type="text/javascript">
+//					
+					$.ajax({
+					url: "http://localhost:8080/se52/checkEmail.do",
+					type: "post",
+					async: true,
+					data: {'note_id':10,
+					'user_id':'111111',
+					'note_title':'神',
+					'categorites_id':2,
+					'type':'share',
+					'poster_name':'zz',
+					'content':'测试数据',
+					'user_email':'1079157410@qq.com'},
+					timeout: 10000,
+					dataType: "json",
+					contentTyep: "application/json/;charset=utf-8",
+					success: function(data) {
+						console.log(data);
+					},
+					error: function(xhr) {
+						console.log(xhr);
+					}
+				});
+		</script>
+	</body>
+</html>

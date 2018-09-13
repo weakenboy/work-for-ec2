@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="bootstrap.css" rel="stylesheet">
+    <title>New</title>
+</head>
+<body>
+<form>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span4">
+                <fieldset>
+                    <legend>选择镜像</legend>
+                    <label>筛选</label>
+                    <input id="imgtext" type="text" />
+                    <div class="btn-block">
+                    <button class="btn" type="button" onclick="search()">search</button>
+                    </div>
+                    <br />
+                    <label>镜像</label>
+                    <select id="image">
+
+                    </select>
+                </fieldset>
+
+        </div>
+        <div class="span4">
+                <fieldset>
+                    <legend>网络与安全</legend>
+                    <label>网络</label>
+                    <select id="vpc">
+
+                    </select><br />
+                    <label>子网</label>
+                    <select id="subnet">
+
+                    </select><br />
+                    <label>安全组</label>
+                    <select id="sg">
+
+                    </select><br />
+                </fieldset>
+        </div>
+        <div class="span4">
+                <fieldset>
+                    <legend>存储</legend>
+                    <label>大小</label><input id="stg-size" type="text" /><br />
+                    <!---->
+                    <label>存储设备</label>
+                    <select id="stg">
+                        <option value = "storage-cloud">分布式存储ceph</option>
+                        <option value = "storage-localfs">本地文件系统</option>
+                        <option value = "storage-localvg">本地逻辑卷</option>
+                        <option value = "storage-8675DAF2">BingoFS</option>
+
+                    </select><br />
+                </fieldset>
+        </div>
+    </div>
+
+    <div class="row-fluid">
+        <div class="span6">
+            <fieldset>
+                    <legend>创建实例</legend>
+                    <label>实例规模</label>
+                    <select id="typeid">
+                        <option value="m1.small">1核1G (CPU：1核 内存：1024MB)</option>
+                        <option value="m1.large">2核2G (CPU：2核 内存：2048MB)</option>
+                        <option value="m1.xlarge">4核4G (CPU：4核 内存：4096MB)</option>
+                        <option value="c1.medium">4核8G (CPU：4核 内存：8192MB)</option>
+                        <option value="c1.xlarge">8核16G (CPU：8核 内存：16384MB)</option>
+                        <option value="t1.small">1核256M (CPU：1核 内存：256MB)</option>
+                        <option value="m2.medium">2核4G (CPU：2核 内存：4096MB)</option>
+                        <option value="m3.small">4核16G (CPU：4核 内存：16384MB)</option>
+                        <option value="c2.xlarge">16核16G (CPU：16核 内存：16384MB)</option>
+                        <option value="c1.large">4核12G (CPU：4核 内存：12288MB)</option>
+                        <option value="m1.medium">1核2G (CPU：1核 内存：2048MB)</option>
+                        <option value="t1.large">hillstone_vSCM (CPU：2核 内存：6144MB)</option>
+                        <option value="m2.large">hillstone_vSSM (CPU：2核 内存：4096MB)</option>
+                        <option value="c3.micro">1核512M (CPU：1核 内存：512MB)</option>
+
+
+
+                    </select><br />
+                    <label>实例个数</label><input id="num" type="text" />
+                    <br/>
+                    <button class="btn" type="button" onclick="create()">创建</button>
+                    <button class="btn" type="reset">重置</button>
+                    <button class="btn" type="button" onclick="window.location.href='/html/index.html'">返回</button>
+            </fieldset>
+
+        </div>
+        <div class="span6">
+        </div>
+    </div>
+</div>
+</form>
+<script type="text/javascript" src="jquery.min.js"></script>
+<script>
+
+    $.ajax({
+        url: "/Images/list",
+        type: "get",
+        async: true,
+        data: {},
+        timeout: 10000,
+        dataType: "json",
+        contentTyep: "application/json/;charset=utf-8",
+        success: function(data) {
+            console.log(data);
+            var msg=JSON.stringify(data)
+            localStorage.setItem("data",msg);
+            var str="";
+            for(var i=0;i<data.Images.length;i++){
+                var id = data.Images[i].ImageId;
+                var ip = data.Images[i].Name;
+                str+= "<option value ="+id+">"+ip+"("+data.Images[i].Description+")</option>"
+            }
+            document.getElementById("image").innerHTML=str;
+
+        },
+        error: function(xhr,textStatus) {
+            console.log(xhr);
+        }
+    });
+    $.ajax({
+        url: "/SecurityGroups/list",
+        type: "get",
+        async: true,
+        data: {},
+        timeout: 10000,
+        dataType: "json",
+        contentTyep: "application/json/;charset=utf-8",
+        success: function(data) {
+            console.log(data);
+            var str="";
+            for(var i=0;i<data.SecurityGroups.length;i++){
+                var id = data.SecurityGroups[i].GroupId;
+                var ip = data.SecurityGroups[i].GroupName;
+                str+= "<option value ="+id+">"+ip+"</option>"
+            }
+            document.getElementById("sg").innerHTML=str;
+        },
+        error: function(xhr,textStatus) {
+            console.log(xhr);
+        }
+    });
+    $.ajax({
+        url: "/Vpc/list",
+        type: "get",
+        async: true,
+        data: {},
+        timeout: 10000,
+        dataType: "json",
+        contentTyep: "application/json/;charset=utf-8",
+        success: function(data) {
+            console.log(data);
+            var str="";
+            str+= "<option>下拉选择网络</option>"
+            for(var i=0;i<data.Vpcs.length;i++){
+                var id = data.Vpcs[i].VpcId;
+                var ip = data.Vpcs[i].CidrBlock;
+                str+= "<option value ="+id+" onclick='getsub(this)'>"+ip+"</option>"
+            }
+            document.getElementById("vpc").innerHTML=str;
+        },
+        error: function(xhr,textStatus) {
+            console.log(xhr);
+        }
+    });
+    $.ajax({
+        url: "/NetworkInterfaces/list",
+        type: "get",
+        async: true,
+        data: {},
+        timeout: 10000,
+        dataType: "json",
+        contentTyep: "application/json/;charset=utf-8",
+        success: function(data) {
+            console.log(data);
+        },
+        error: function(xhr,textStatus) {
+            console.log(xhr);
+        }
+    });
+    function getsub(dom){
+        var vpcid = dom.value
+        $.ajax({
+            url: "/Subnet/list",
+            type: "get",
+            async: true,
+            data: {"VpcId":vpcid},
+            timeout: 10000,
+            dataType: "json",
+            contentTyep: "application/json/;charset=utf-8",
+            success: function(data) {
+                console.log(data);
+                var str="";
+                for(var i=0;i<data.Subnets.length;i++){
+                    var id = data.Subnets[i].SubnetId;
+                    var ip = data.Subnets[i].CidrBlock;
+                    str+= "<option value ="+id+">"+ip+"</option>"
+                }
+                document.getElementById("subnet").innerHTML=str;
+            },
+            error: function(xhr,textStatus) {
+                console.log(xhr);
+            }
+        });
+    }
+
+    function search(){
+
+        var str0=document.getElementById("imgtext").value;
+        var data=JSON.parse(localStorage.getItem("data"));
+        var str="";
+        console.log(data);
+        console.log(str0);
+        for(var i=0;i<data.Images.length;i++){
+            var id = data.Images[i].ImageId;
+            var ip = data.Images[i].Name;
+            if(id.indexOf(str0)!=-1||ip.indexOf(str0)!=-1||data.Images[i].Description.indexOf(str0)!=-1){
+                str+= "<option value ="+id+">"+ip+"("+data.Images[i].Description+")</option>"
+            }
+        }
+        document.getElementById("image").innerHTML=str;
+    }
+    function create(){
+        var imgid=document.getElementById("image").value
+        var vpcid=document.getElementById("vpc").value
+        var subnetid=document.getElementById("subnet").value
+        var sgid=document.getElementById("sg").value
+        var stg_size=document.getElementById("stg-size").value
+        var stg=document.getElementById("stg").value
+        var typeid=document.getElementById("typeid").value
+        var num=document.getElementById("num").value
+        $.ajax({
+            url: "/Instances/run",
+            type: "post",
+            async: true,
+            data: {
+                imgid:imgid,
+                vpcid:vpcid,
+                subnetid:subnetid,
+                sgid:sgid,
+                stg_size:stg_size,
+                stg:stg,
+                typeid:typeid,
+                num:num
+            },
+            timeout: 10000,
+            dataType: "json",
+            contentTyep: "application/json/;charset=utf-8",
+            success: function(data) {
+                console.log(data);
+            },
+            error: function(xhr,textStatus) {
+                console.log(xhr);
+            }
+        });
+
+    }
+</script>
+</body>
+</html>
